@@ -1,0 +1,3 @@
+#!/bin/sh
+# Programmed by Todd Headlam
+vboxmanage list runningvms

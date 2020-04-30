@@ -1,0 +1,25 @@
+#!/bin/sh
+# Programmed by Todd Headlam
+
+if [ $# -lt 2 ]; then
+	echo "Usage: #0 vm_name and iso_filename"
+	exit 1
+fi
+
+# Variables
+VM_NAME="$1"
+ISO_FILENAME="$2"
+if [ -f "$HOME/bin/def_vm.conf" ]; then
+	. "$HOME/bin/def_vm.conf"
+else
+	echo "The configuration file $HOME/bin/def_vm.conf DOES NOT EXIST."
+	exit 1
+fi
+
+vboxmanage storageattach "$VM_NAME" --storagectl "$IDE_CTRL" --port 1 --device 0 --type dvddrive --medium "$ISO_FILENAME"
+RET_CODE=$?
+if [ $RET_CODE -ne 0 ]; then
+	echo "Error: Mount ISO ($RET_CODE)"
+	exit 1
+fi 
+

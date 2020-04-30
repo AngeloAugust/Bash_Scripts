@@ -1,0 +1,24 @@
+#!/bin/sh
+#Programmed by Todd Headlam
+
+if [ $# -lt 1 ]; then
+	echo "Usage: $0 vm_name"
+	exit 1
+fi
+
+# variables
+VM_NAME="$1"
+
+if [ -f "$HOME/bin/def_vm.conf" ]; then
+	. "$HOME/bin/def_vm.conf"
+else
+	echo "Error: the configuration file $HOME/bin/def_vm.conf DOES NOT EXIST."
+	exit 1
+fi
+
+vboxmanage storageattach "$VM_NAME" --storagectl "$IDE_CTRL" --port 1 --device 0 --type dvddrive --medium none
+RET_CODE=$?
+if [ $RET_CODE -ne 0 ]; then
+	echo "Error: Remove ISO ($RET_CODE)"
+	exit 1
+fi

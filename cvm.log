@@ -1,0 +1,11 @@
+Reading configuration file /home/todd/bin/def_vm.conf
+CREATING VM (theadlam_sol)
+Virtual machine 'theadlam_sol' is created and registered.
+UUID: 2e2fb26b-ef9a-47c3-98b0-b7a54b0d212d
+Settings file: '/home/todd/VirtualBox VMs/theadlam_sol/theadlam_sol.vbox'
+Creating IDE controller
+Creating SATA controller
+Creating HDD
+0%...10%...20%...30%...40%...50%...60%...70%...80%...90%...100%
+Medium created. UUID: 9ea938ee-3b36-439c-889c-ffbd49214a61
+Modifying VM

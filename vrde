@@ -1,0 +1,13 @@
+#!/bin/sh
+# Programmed by Todd Headlam
+
+if [ $# -lt 2 ]; then 
+	echo "Usage: $0 <on|off> vm_name."
+	exit 1
+fi 
+
+if [ "$1" = "on" ]; then
+	vboxmanage controlvm "$2" vrde on
+else
+	vboxmanage controlvm "$2" vrde off
+fi	

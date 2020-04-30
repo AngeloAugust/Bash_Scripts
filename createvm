@@ -1,0 +1,82 @@
+#!/bin/sh
+# Programmed by Todd Headlam
+
+if [ $# -lt 1 ]; then
+	echo "Usage: $0 vm_name"
+	exit 1
+fi
+
+# variable 
+VM_NAME="$1"
+LOG_FILE="$HOME/bin/cvm.log"
+
+echo "Reading configuration file $HOME/bin/def_vm.conf" > $LOG_FILE 2>&1
+if [ -f $HOME/bin/def_vm.conf ]; then
+	. $HOME/bin/def_vm.conf
+else
+	echo "Error: def_vm.conf does not exist."
+	echo "Error: def_vm.conf does not exist." >> $LOG_FILE 2>&1
+	exit 1
+fi
+
+# Create VM
+echo "CREATING VM ($VM_NAME)" >> $LOG_FILE 2>&1
+vboxmanage createvm --name "$VM_NAME" --register >> $LOG_FILE 2>&1
+RET_CODE=$?
+if [ $RET_CODE -ne 0 ]; then
+	echo "Error: create vm ($RET_CODE)"
+	echo "Error: create vm ($RET_CODE)" >> $LOG_FILE 2>&1
+	exit 1
+fi
+
+# Create IDE controller 
+echo "Creating IDE controller" >>$LOG_FILE 2>&1
+vboxmanage storagectl "$VM_NAME" --name "$IDE_CTRL" --add ide >> $LOG_FILE 2>&1
+RET_CODE=$?
+if [ $RET_CODE -ne 0 ]; then
+	echo "Error: creating ide ($RET_CODE)"
+	echo "Error: creating ide ($RET_CODE)" >>$LOG_FILE 2>&1
+	exit 1
+fi
+
+# Create SATA controller
+echo "Creating SATA controller" >> $LOG_FILE 2>&1
+vboxmanage storagectl "$VM_NAME" --name "$SATA_CTRL" --add sata --controller IntelAHCI >> $LOG_FILE 2>&1
+RET_CODE=$?
+if [ $RET_CODE -ne 0 ]; then 
+	echo "Error: creating sata ($RET_CODE)"
+	echo "Error: creating sata ($RET_CODE)" >$LOG_FILE 2>&1
+	exit 1
+fi
+
+# Create HDD
+echo "Creating HDD" >> $LOG_FILE 2>&1
+vboxmanage createhd --filename "$HOME/VirtualBox VMs/$VM_NAME/$VM_NAME.vdi" --size $HDD_SIZE >> $LOG_FILE 2>&1
+RET_CODE=$?
+if [ $RET_CODE -ne 0 ]; then 
+	echo "Error: creating hdd ($RET_CODE)"
+	echo "Error: creating hdd ($RET_CODE)" >> $LOG_FILE 2>&1
+	exit 1
+fi
+
+# Attaching HDD
+echo "Attaching HDD" >> LOG_FILE 2>&1
+vboxmanage storageattach "$VM_NAME" --storagectl "$SATA_CTRL" --port 0 --device 0 --type hdd --medium "$HOME/VirtualBox VMs/$VM_NAME/$VM_NAME.vdi" >> $LOG_FILE 2>&1
+RET_CODE=$?
+if [ $RET_CODE -ne 0 ]; then
+	echo "Error: attaching hdd ($RET_CODE)"
+	echo "Error: attaching hdd ($RET_CODE)" >> $LOG_FILE 2>&1
+	exit 1
+fi
+
+# Modify VM
+echo "Modifying VM" >> $LOG_FILE 2>&1
+vboxmanage modifyvm "$VM_NAME" --memory "$MEM_SIZE" --acpi on --boot1 dvd --nic1 bridged --bridgeadapter1 "$NIC_IF_NAME" --vrdeport "$VRDE_PORT" >> $LOG_FILE 2>&1
+RET_CODE=$?
+if [ $RET_CODE -ne 0 ]; then
+	echo "Error: modifying vm ($RET_CODE)"
+	echo "Error: modifying vm ($RET_CODE)" >> $LOG_FILE 2>&1
+	exit 1
+fi
+
+echo "Hallelujah: the $VM_NAME vm is created."
